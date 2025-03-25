@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.log
+
+# Environments
+venv/
+.env
+
+# Tokens and credentials
+credentials.json
+token.json
+status.json
+
+# VS Code
+.vscode/
