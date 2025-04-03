@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "../SaayamFrontEnd"
+		},
+		{
+			"path": "../AI powered Devops Monitoring System"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true,
+		"liveServer.settings.multiRootWorkspaceName": "job-app-tracker"
+	}
+}

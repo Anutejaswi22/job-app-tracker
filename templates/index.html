@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Job Application Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Orbit Spinner beside SCANNING... */
+    .spinner-orbit {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 3px solid transparent;
+      border-top: 3px solid white;
+      border-radius: 50%;
+      margin-right: 8px;
+      animation: orbitSpin 0.8s linear infinite;
+      vertical-align: middle;
+    }
+    
+    @keyframes orbitSpin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Dots bouncing animation */
+    .dots-loading .dots::after {
+      content: '';
+      display: inline-block;
+      animation: dotsAnim 1.5s infinite steps(4);
+    }
+    
+    @keyframes dotsAnim {
+      0%   { content: ''; }
+      25%  { content: '.'; }
+      50%  { content: '..'; }
+      75%  { content: '...'; }
+      100% { content: ''; }
+    }
+    </style>
+</head>
+<h1 class="page-title">Job Application Tracker</h1>
+<body class="{{ user.theme | default('dark') }}">
+
+  <!-- 👇 Add this block just inside the <body> -->
+    <div class="profile-dropdown">
+      <button id="profile-btn">👤</button>
+      <div class="dropdown-content" id="dropdown">
+        <a href="/profile"><span style="margin-right: 8px;">👤</span> Profile</a>
+        <a href="/settings"><span style="margin-right: 8px;">⚙️</span> Settings</a>
+        <a href="/logout"><span style="margin-right: 8px;">🚪</span> Logout</a>
+      </div>
+    </div>
+  
+  <div class="main-layout" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 30px; flex-wrap: wrap;">
+    <!-- LEFT SIDE: Stats + Recent Activity -->
+    <div class="tracker-card" style="flex: 1; min-width: 350px;">
+      <div class="stats">
+        <!-- Your existing 4 stat cards -->
+        <div class="stat">
+          <div class="stat-label">Applied</div>
+          <div class="stat-value" id="applied-count">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Rejections</div>
+          <div class="stat-value" id="rejected-count">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Uncertain</div>
+          <div class="stat-value" id="uncertain-count">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Total Applications</div>
+          <div class="stat-value" id="total-count">0</div>
+        </div>
+      </div>
+  
+      <div class="activity-section">
+        <h2>Recent Activity</h2>
+        <div class="activity-card" id="recent-activity">
+          <div class="loading-box">
+            <div class="spinner"></div>
+            <span>Loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- RIGHT SIDE: Buttons -->
+    <div class="button-panel" style="flex: 0.5; min-width: 300px;">
+      <button onclick="location.href='{{ url_for('applied') }}'">Applications</button>
+      <button onclick="location.href='{{ url_for('rejected') }}'">Rejected</button>
+      <button id="scan-btn" class="scan-button" onclick="startScan()">📧 SCAN GMAIL NOW</button>
+
+      <!-- 🔍 Scan Between Dates -->
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label for="from-date" style="color: red; font-weight: 600;">From:</label>
+          <input type="date" id="from-date" required style="flex: 1;">
+          <label for="to-date" style="color: red; font-weight: 600;">To:</label>
+          <input type="date" id="to-date" required style="flex: 1;">
+        </div>
+      
+        <button type="button" id="scan-between-btn" class="scan-button" onclick="scanWithDates()">
+          🔍 SCAN BETWEEN DATES
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    fetch('/status.json')
+      .then(res => res.json())
+      .then(data => {
+        const applied = data.applied_count || 0;
+        const rejected = data.rejected_count || 0;
+        const uncertain = data.uncertain_count || 0;
+        const total = applied + rejected;
+
+        // Update each stat card's number
+        document.getElementById("applied-count").textContent = applied;
+        document.getElementById("rejected-count").textContent = rejected;
+        document.getElementById("uncertain-count").textContent = uncertain;
+        document.getElementById("total-count").textContent = total;
+      });
+
+    fetch('/static/rejected.json')
+      .then(res => res.json())
+      .then(data => {
+        const latest = data[data.length - 1];
+        const container = document.getElementById("recent-activity");
+        if (latest) {
+          container.innerHTML = `
+            <div class="job-title">${latest.job_title}</div>
+            <div class="company">${latest.company}</div>
+            <div class="meta">
+              <span class="badge rejected">Rejected</span>
+              <span class="date">${latest.date}</span>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `<p>No recent activity found.</p>`;
+        }
+      });
+      function startScan() {
+        const scanBtn = document.querySelector('#scan-btn');
+        scanBtn.disabled = true;
+        scanBtn.innerHTML = `
+          <span class="spinner-orbit"></span> SCANNING...
+        `;
+
+        const loadingNote = document.createElement('p');
+        loadingNote.id = "scanning-status";
+        loadingNote.innerHTML = `
+          <span class="dots-loading">Fetching your latest job applications & rejections<span class="dots"></span></span>
+        `;
+        loadingNote.style.marginTop = "15px";
+        loadingNote.style.fontSize = "0.9rem";
+        loadingNote.style.color = "#555";
+        document.querySelector('.button-panel').appendChild(loadingNote);
+
+        // 🔧 FIXED: Use scan_now instead of scan
+        fetch("{{ url_for('scan_now') }}")
+          .then(() => window.location.href = "/")
+          .catch(() => alert("Failed to scan Gmail."));
+      }
+
+      function scanWithDates() {
+        const from = document.getElementById("from-date").value;
+        const to = document.getElementById("to-date").value;
+
+        if (!from || !to) {
+          alert("Please select both dates!");
+          return;
+        }
+
+        const scanBtn = document.querySelector('#scan-between-btn');
+        if (scanBtn) {
+          scanBtn.disabled = true;
+          scanBtn.innerHTML = `<span class="spinner-orbit"></span> SCANNING...`;
+        }
+
+        // Remove old status if present
+        const existingStatus = document.getElementById("scanning-status");
+        if (existingStatus) existingStatus.remove();
+
+        // Add new status message
+        const loadingNote = document.createElement('p');
+        loadingNote.id = "scanning-status";
+        loadingNote.innerHTML = `
+          <span class="dots-loading">⏳ Fetching job applications & rejections<span class="dots"></span></span>
+        `;
+        loadingNote.style.marginTop = "10px";
+        loadingNote.style.fontSize = "0.9rem";
+        loadingNote.style.color = "#ddd";
+        document.querySelector('.button-panel').appendChild(loadingNote);
+
+         // Delay before redirecting
+        fetch(`/scan_range?from=${from}&to=${to}`)
+          .then(() => {
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 1500); // 👈 delay by 1.5 seconds
+          })
+          .catch(() => alert("Scan between dates failed."));
+      }
+
+   
+      // ✅ Your existing script remains...
+
+      // 👇 Add this at the end
+      const profileBtn = document.getElementById("profile-btn");
+      const dropdown = document.getElementById("dropdown");
+
+      profileBtn.addEventListener("click", () => {
+        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+      });
+
+      document.addEventListener("click", (event) => {
+        if (!event.target.closest(".profile-dropdown")) {
+          dropdown.style.display = "none";
+        }
+      });
+
+
+  </script>
+<footer class="footer">
+    &copy; {{ year }} Anutejaswi Sunkara. All rights reserved.
+</footer>
+</body>
+</html>

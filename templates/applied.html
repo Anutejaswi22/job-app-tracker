@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Applied Companies</title>
+  <style>
+    body { background-color: #0b0c17; color: #fff; font-family: Orbitron, sans-serif; padding: 40px; }
+    h1 { text-align: center; font-size: 2rem; color: #61e8f8; margin-bottom: 30px; }
+    .search-container { text-align: center; margin-bottom: 20px; }
+    .search-container input {
+      width: 300px; padding: 10px; border-radius: 6px; font-size: 16px; border: none;
+    }
+    table { width: 90%; margin: auto; border-collapse: collapse; }
+    th, td {
+      padding: 14px; border-bottom: 1px solid #61e8f822; text-align: left;
+    }
+    th { background-color: #11232f; color: #00ffff; }
+    tr:hover { background-color: #061821; }
+    .status.in-progress { color: lime; font-weight: bold; }
+    .status.rejected { color: red; font-weight: bold; }
+    a { color: #00ffff; display: block; text-align: center; margin-top: 30px; }
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <h1>Applied Companies</h1>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search job title or company...">
+  </div>
+  <table id="jobsTable">
+    <thead>
+      <tr><th>Job Title</th><th>Company</th><th>Status</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+
+        <tr>
+            <td>
+                Web Developer - Coaching
+                <button class="view-btn" onclick="showEmailModal(`Your application has been submitted. Good luck!
+If you notice an error in your application, please Contact Indeed &lt;https://apply.indeed.com/indeedapply/confirmemail/contactus?iaUid=1inp3dlc9gnf4801&amp;apiToken=aa102235a5ccb18bd3668c0e14aa3ea7e2503cfac2a7a9bf3d6549899e125af4&gt;
+
+------
+
+Indeed - one search. all jobs. | Austin Indeed Tower, 200 West 6th Street, Floor 36, Austin, TX 78701`)">👁 View</button>
+            </td>
+            <td>Indeed</td>
+            <td><span class="badge badge-success">In Progress</span></td>
+            <td>Apr 01, 2025 04:42 PM</td>
+        </tr>
+        
+    </tbody>
+  </table>
+  <a href="/uncertain">🟡 View Uncertain Emails</a>
+  <footer>⏱️ Last updated on: Apr 03, 2025 at 11:12 AM</footer>
+  <a href="/dashboard">← Back to Tracker</a>
+
+  <!-- 📬 Popup Modal for Full Email -->
+  <div id="popupModal" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background-color:#1b1c28; color:#eee; padding:20px; border-radius:10px; overflow-y:auto; z-index:9999; box-shadow: 0 0 20px rgba(0,0,0,0.6);">
+    <button onclick="closeEmailModal()" style="float:right; background-color:#333; color:#fff; border:none; padding:5px 10px; border-radius:6px;">❌ Close</button>
+    <h3 style="margin-top:0;">📬 Full Email Content</h3>
+    <div id="popupContent" style="white-space: pre-wrap; margin-top:10px; word-wrap: break-word;"></div>
+  </div>
+
+  <script>
+    document.getElementById("searchInput").addEventListener("input", function () {
+      const filter = this.value.toLowerCase();
+      document.querySelectorAll("#jobsTable tbody tr").forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(filter) ? "" : "none";
+      });
+    });
+
+    function showEmailModal(content) {
+        document.getElementById("popupContent").innerText = content;
+        document.getElementById("popupModal").style.display = "block";
+    }
+
+    function closeEmailModal() {
+        document.getElementById("popupModal").style.display = "none";
+    }
+  </script>
+</body>
+</html>

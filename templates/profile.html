@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Profile</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    .profile-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px;
+      background-color: #1c1c2b;
+      color: #ddd;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    .profile-container img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin-bottom: 20px;
+      border: 3px solid #fff;
+    }
+
+    .profile-container h1 {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+
+    .profile-container p {
+      font-size: 16px;
+      margin: 5px 0;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      display: inline-block;
+      padding: 8px 15px;
+      background-color: #444;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .back-btn:hover {
+      background-color: #555;
+    }
+
+    /* ✅ Toast style */
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: #333;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      display: none;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body class="{{ user.theme | default('dark') }}">
+  <div class="profile-box" align="center">
+    <img class="profile-pic" src="{{ user.picture }}" alt="Profile Picture" />
+    <h2>👤 {{ user.name }}</h2>
+    <p>📧 <strong>Email:</strong> {{ user.email }}</p>
+
+    <!-- ✅ Profile Edit Form -->
+    <form action="{{ url_for('update_profile') }}" method="POST" style="margin-top: 30px; text-align: center;">
+      <div style="margin-bottom: 15px;">
+        <label for="locale" style="font-weight: bold; color: #ccc;"></label>
+        <input type="text" 
+               style="padding: 6px; border-radius: 6px; border: none; width: 200px;">
+      </div>
+    </form>
+
+    <a href="/dashboard">
+      <button style="margin-top: 15px;">⬅️ Back to Dashboard</button>
+    </a>
+  </div>
+
+  <!-- ✅ Toast container -->
+  <div id="toast">✅ Profile updated!</div>
+
+  <!-- ✅ Show toast if updated -->
+  <script>
+    window.onload = function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('updated') === 'true') {
+        const toast = document.getElementById("toast");
+        toast.style.display = "block";
+        setTimeout(() => { toast.style.display = "none"; }, 3000);
+      }
+    };
+  </script>
+</body>
+</html>
