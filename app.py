@@ -8,6 +8,8 @@ from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from google.oauth2 import id_token
 import requests
+from google_auth_oauthlib.flow import Flow
+import google.auth.transport.requests
 
 from job_tracker_email_bot.gmail_utils import authenticate_gmail
 from job_tracker_email_bot.processor import get_job_emails
@@ -33,8 +35,16 @@ def home():
 
 @app.route("/authorize")
 def authorize():
-    flow = Flow.from_client_secrets_file(
-        'credentials.json',
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": os.environ.get("GOOGLE_CLIENT_ID"),
+                "client_secret": os.environ.get("GOOGLE_CLIENT_SECRET"),
+                "redirect_uris": [url_for('oauth2callback', _external=True)],
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token"
+            }
+        },
         scopes=SCOPES,
         redirect_uri=url_for('oauth2callback', _external=True)
     )
@@ -45,8 +55,16 @@ def authorize():
 @app.route("/oauth2callback")
 def oauth2callback():
     state = session['state']
-    flow = Flow.from_client_secrets_file(
-        'credentials.json',
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": os.environ.get("GOOGLE_CLIENT_ID"),
+                "client_secret": os.environ.get("GOOGLE_CLIENT_SECRET"),
+                "redirect_uris": [url_for('oauth2callback', _external=True)],
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token"
+            }
+        },
         scopes=SCOPES,
         state=state,
         redirect_uri=url_for('oauth2callback', _external=True)
