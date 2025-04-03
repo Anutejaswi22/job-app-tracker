@@ -84,6 +84,7 @@ def scan_now():
     creds = authenticate_gmail()
     service = build('gmail', 'v1', credentials=creds)
     get_job_emails(service, max_emails=50)
+    session['recent_activity'] = "✅ Scanning completed successfully."
     return redirect(url_for('home'))
 
 @app.route('/scan_range')

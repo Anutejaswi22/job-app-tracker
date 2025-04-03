@@ -80,18 +80,24 @@
       <div class="activity-section">
         <h2>Recent Activity</h2>
         <div class="activity-card" id="recent-activity">
-          <div class="loading-box">
-            <div class="spinner"></div>
-            <span>Loading...</span>
-          </div>
+          <p style="color: red; font-weight: bold;"></p>
+      
+          {% if session.recent_activity %}
+            <p style="color: #00ffae;">✅ {{ session.recent_activity }}</p>
+          {% else %}
+            <div class="loading-box">
+              <div class="spinner"></div>
+              <span style="color: #1877f2; font-weight: bold;">Loading...</span>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
   
     <!-- RIGHT SIDE: Buttons -->
     <div class="button-panel" style="flex: 0.5; min-width: 300px;">
-      <button onclick="location.href='{{ url_for('applied') }}'">Applications</button>
-      <button onclick="location.href='{{ url_for('rejected') }}'">Rejected</button>
+      <button onclick="location.href='/applied'">Applications</button>
+      <button onclick="location.href='/rejected'">Rejected</button>
       <button id="scan-btn" class="scan-button" onclick="startScan()">📧 SCAN GMAIL NOW</button>
 
       <!-- 🔍 Scan Between Dates -->
