@@ -174,5 +174,4 @@ wrapt==1.17.2
 wsproto==1.2.0
 xmod==1.8.1
 yarl==1.18.3
-protobuf==3.20.3
---no-deps
+
