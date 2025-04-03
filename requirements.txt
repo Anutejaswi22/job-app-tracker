@@ -85,7 +85,7 @@ multidict==6.1.0
 murmurhash==1.0.12
 mypy-extensions==1.0.0
 networkx==3.4.2
-numpy==2.2.4
+numpy
 oauthlib==3.2.2
 ollama==0.4.7
 openai==1.37.1
