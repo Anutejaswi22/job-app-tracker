@@ -15,7 +15,7 @@ from job_tracker_email_bot.builder import build_html_page
 from job_tracker_email_bot.config import applied_path, rejected_path, status_path
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
-app.secret_key = 'your_secret_key'  # 🔐 Use a secure key in production
+app.secret_key = os.environ.get('SESSION_SECRET')  # 🔐 Use a secure key in production
 app.permanent_session_lifetime = timedelta(minutes=10)
 
 # 🔁 Ensure session persists for defined time
