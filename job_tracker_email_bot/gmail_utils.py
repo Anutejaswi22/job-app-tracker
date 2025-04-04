@@ -29,12 +29,14 @@ def chunkify(lst, size):
         yield lst[i:i + size]
 
 def authenticate_gmail():
+    token_path = "/tmp/token.json"
     creds = None
     if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        creds = Credentials.from_authorized_user_file(token_path, SCOPES)
     if not creds or not creds.valid:
-        flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+        secret_path = "/etc/secrets/credentials.json" if os.getenv("RENDER") else "credentials.json"
+        flow = InstalledAppFlow.from_client_secrets_file(secret_path, SCOPES)
         creds = flow.run_local_server(port=0)
-        with open('token.json', 'w') as token:
+        with open(token_path, 'w') as token:
             token.write(creds.to_json())
     return creds
