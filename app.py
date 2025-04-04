@@ -281,5 +281,9 @@ def view_email(email_id):
 
     return render_template('view_email.html', email=email_data)
 
+@app.route('/test-login-js')
+def test_login_js():
+    return send_file('static/js/login.js')
+
 if __name__ == '__main__':
     app.run(debug=True)
