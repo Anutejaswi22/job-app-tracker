@@ -10,6 +10,8 @@ from google.oauth2 import id_token
 import requests
 from google_auth_oauthlib.flow import Flow
 import google.auth.transport.requests
+import firebase_admin
+from firebase_admin import credentials as firebase_credentials, auth as firebase_auth
 
 from job_tracker_email_bot.gmail_utils import authenticate_gmail
 from job_tracker_email_bot.processor import get_job_emails
@@ -180,24 +182,44 @@ def dashboard():
 
     return redirect(url_for('login'))
 
+
+# ✅ Initialize Firebase Admin (run this once during app startup)
+if not firebase_admin._apps:
+    firebase_json = os.environ.get("FIREBASE_ADMIN_JSON")
+    cred = firebase_credentials.Certificate(io.StringIO(firebase_json))
+    firebase_admin.initialize_app(cred)
+
 @app.route('/sessionLogin', methods=['POST'])
 def session_login():
     data = request.get_json()
-    session['credentials'] = {
-        'logged_in': True,
-        'user_email': data.get('email')
-    }
-    session['user'] = {
-        'email': data.get('email'),
-        'name': data.get('name'),
-        'picture': data.get('picture'),
-        'gender': data.get('gender', 'Not provided'),
-        'locale': data.get('locale', 'en'),
-        'theme': data.get('theme', 'dark'),
-        'email_alerts': data.get('email_alerts', False)
-    }
-    print("✅ Logged in session:", session['user'])
-    return '', 200
+    id_token = data.get("idToken")
+
+    try:
+        # 🔐 Verify the ID token received from frontend
+        decoded_token = firebase_auth.verify_id_token(id_token)
+        email = decoded_token['email']
+
+        session['credentials'] = {
+            'logged_in': True,
+            'user_email': email
+        }
+
+        session['user'] = {
+            'email': email,
+            'name': data.get('name'),
+            'picture': data.get('picture'),
+            'gender': data.get('gender', 'Not provided'),
+            'locale': data.get('locale', 'en'),
+            'theme': data.get('theme', 'dark'),
+            'email_alerts': data.get('email_alerts', False)
+        }
+
+        print("✅ Firebase token verified & session set for:", session['user'])
+        return '', 200
+
+    except Exception as e:
+        print("❌ Firebase token verification failed:", str(e))
+        return 'Unauthorized', 401
 
 @app.route('/logout')
 def logout():
