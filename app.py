@@ -12,6 +12,7 @@ import requests
 from google_auth_oauthlib.flow import Flow
 import google.auth.transport.requests
 import firebase_admin
+import json
 from firebase_admin import credentials as firebase_credentials, auth as firebase_auth
 
 from job_tracker_email_bot.gmail_utils import authenticate_gmail
@@ -186,8 +187,7 @@ def dashboard():
 
 # ✅ Initialize Firebase Admin (run this once during app startup)
 if not firebase_admin._apps:
-    firebase_json = os.environ.get("FIREBASE_ADMIN_JSON")
-    cred = firebase_credentials.Certificate(json.loads(firebase_json))
+    cred = firebase_credentials.Certificate("/etc/secrets/firebase-adminsdk.json")
     firebase_admin.initialize_app(cred)
 
 @app.route('/sessionLogin', methods=['POST'])
