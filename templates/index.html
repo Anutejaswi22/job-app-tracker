@@ -132,24 +132,7 @@
         document.getElementById("total-count").textContent = total;
       });
 
-    fetch('/static/rejected.json')
-      .then(res => res.json())
-      .then(data => {
-        const latest = data[data.length - 1];
-        const container = document.getElementById("recent-activity");
-        if (latest) {
-          container.innerHTML = `
-            <div class="job-title">${latest.job_title}</div>
-            <div class="company">${latest.company}</div>
-            <div class="meta">
-              <span class="badge rejected">Rejected</span>
-              <span class="date">${latest.date}</span>
-            </div>
-          `;
-        } else {
-          container.innerHTML = `<p>No recent activity found.</p>`;
-        }
-      });
+      
       function startScan() {
         const scanBtn = document.querySelector('#scan-btn');
         scanBtn.disabled = true;
