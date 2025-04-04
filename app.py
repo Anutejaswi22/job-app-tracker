@@ -194,7 +194,7 @@ if not firebase_admin._apps:
 def session_login():
     data = request.get_json()
     id_token = data.get("idToken")
-
+    print("🪪 Received ID token:", id_token[:20], "...")
     try:
         # 🔐 Verify the ID token received from frontend
         decoded_token = firebase_auth.verify_id_token(id_token)
