@@ -187,7 +187,7 @@ def dashboard():
 # ✅ Initialize Firebase Admin (run this once during app startup)
 if not firebase_admin._apps:
     firebase_json = os.environ.get("FIREBASE_ADMIN_JSON")
-    cred = firebase_credentials.Certificate(io.StringIO(firebase_json))
+    cred = firebase_credentials.Certificate(json.loads(firebase_json))
     firebase_admin.initialize_app(cred)
 
 @app.route('/sessionLogin', methods=['POST'])
