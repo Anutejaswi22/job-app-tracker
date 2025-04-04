@@ -34,7 +34,7 @@ def authenticate_gmail():
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     if not creds or not creds.valid:
         flow = InstalledAppFlow.from_client_secrets_file('/etc/secrets/credentials.json', SCOPES)
-        creds = flow.run_console()  # ✅ Works on servers
+        creds = flow.run_local_server(port=8080)  # ✅ FIXED
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
     return creds
