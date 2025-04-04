@@ -12,7 +12,7 @@ import requests
 from google_auth_oauthlib.flow import Flow
 import google.auth.transport.requests
 import firebase_admin
-import json
+from flask import Response
 from firebase_admin import credentials as firebase_credentials, auth as firebase_auth
 
 from job_tracker_email_bot.gmail_utils import authenticate_gmail
@@ -284,6 +284,13 @@ def view_email(email_id):
 @app.route('/test-login-js')
 def test_login_js():
     return send_file('static/js/login.js')
+
+
+@app.route('/firebase-config')
+def firebase_config():
+    with open('/etc/secrets/firebase-config.js', 'r') as f:
+        js_code = f.read()
+    return Response(js_code, mimetype='application/javascript')    
 
 if __name__ == '__main__':
     app.run(debug=True)
